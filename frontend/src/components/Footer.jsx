@@ -17,7 +17,7 @@ export default function Footer({darkmode}) {
   }, []);
 
   return (
-    <footer className="fixed bottom-0 w-full bg-indigo-500 py-2 overflow-hidden">
+    <footer className="fixed bottom-0 w-full bg-indigo-600 py-2 overflow-hidden">
       <div
         ref={marqueeRef}
         className="flex whitespace-nowrap"

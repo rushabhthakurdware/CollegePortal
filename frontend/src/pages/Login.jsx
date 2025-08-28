@@ -9,41 +9,45 @@ export default function Login() {
     password: "",
     role: "student",
   });
+
+
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
+
 
   const handleLogin = async () => {
     try {
       const res = await axios.post("http://localhost:5000/auth/login", form);
-      alert(res.data.message);
+      // alert(res.data.message);
 
       if (res.data.role === "student") navigate("/student");
       if (res.data.role === "teacher") navigate("/teacher");
       if (res.data.role === "admin") navigate("/admin");
+
+
     } catch {
       alert("❌ Login failed! Check credentials.");
     }
   };
 
+
   // Dynamic classes for dark/light mode
   const textColor = darkMode ? "text-white" : "text-gray-800";
-  const inputTextColor = darkMode
-    ? "text-white placeholder-gray-400"
-    : "text-gray-800 placeholder-gray-500";
-  const inputBg = darkMode
-    ? "bg-gray-700 border-gray-600"
-    : "bg-white border-gray-300";
-  const buttonBg = darkMode
-    ? "bg-indigo-700 hover:bg-indigo-800"
-    : "bg-indigo-600 hover:bg-indigo-700";
+
+  const inputTextColor = darkMode? "text-white placeholder-gray-400": "text-gray-800 placeholder-gray-500";
+
+  const inputBg = darkMode? "bg-gray-700 border-gray-600": "bg-gray-300 border-gray-300";
+
+  const buttonBg = darkMode? "bg-indigo-700 hover:bg-indigo-800": "bg-indigo-600 hover:bg-indigo-700";
+
 
   return (
+
     <div
-      className={`flex h-screen items-center justify-center font-[Poppins] transition-colors duration-500 ${
-        darkMode ? "bg-gray-900" : "bg-indigo-400"
-      }`}
+      className={`flex h-screen items-center justify-center font-[Poppins] transition-colors duration-500 ${darkMode ? "bg-gray-900" : "bg-indigo-400"}`}
       style={{ perspective: "1200px" }}
     >
+
       {/* Dark Mode Toggle */}
       <motion.button
         id="darkModeToggle"
@@ -53,7 +57,9 @@ export default function Login() {
         transition={{ duration: 0.5, ease: "easeInOut" }}
         className="absolute top-6  w-10 right-6 p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition"
       >
+
         <i className={darkMode ? "ri-sun-fill" : "ri-moon-fill"}></i>
+
       </motion.button>
 
       {/* Form Card */}
@@ -66,30 +72,37 @@ export default function Login() {
           scale: darkMode ? 0.95 : 1, // shrink slightly in dark mode
         }}
         transition={{ duration: 2, ease: "easeInOut" }}
-        className={`p-8 rounded-2xl shadow-2xl w-130 h-130 transition-colors duration-500 ${
-          darkMode ? "bg-gray-900" : "bg-white"
-        }`}
+        className={`p-8 rounded-2xl shadow-2xl w-130 h-130 transition-colors duration-500 ${darkMode ? "bg-gray-900" : "bg-white"}`}
         style={{ transformStyle: "preserve-3d" }}
       >
+
+
         {/* Title */}
         <motion.h2
+
           //   animate={{ opacity: darkMode ? 0 : 1 }}
           transition={{ duration: 0.6 }}
+
           //   style={{ backfaceVisibility: "hidden" }}
           className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none  ${inputTextColor}`}
         >
+
           Welcome to XYZ College portal
+          
         </motion.h2>
 
         {/* Inputs */}
         <input
-          className={`w-full mb-4 p-3 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
+        type="text"
+        autoComplete="off"
+          className={`w-full mb-4 p-3 rounded-lg  focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
           placeholder="Username"
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
         />
         <input
           type="password"
+          autoComplete="new-password"
           className={`w-full mb-4 p-3 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
           placeholder="Password"
           value={form.password}

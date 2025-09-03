@@ -9,6 +9,7 @@ import MessagesCard from "../../utils/MessagesCard";
 import CalendarCard from "../../utils/CalendarCard";
 import ResourcesCard from "../../utils/ResourcesCard";
 
+
 export default function StudentDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -92,6 +93,8 @@ export default function StudentDashboard() {
         setShowModal={setShowModal}
         handleLogout={() => (window.location.href = "/")}
       />
+      
+
 
       {/* Sidebar Integration */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />

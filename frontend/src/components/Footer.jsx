@@ -26,47 +26,37 @@ export default function Footer({darkmode}) {
         {/* Original content */}
         <div className="flex gap-4 text-white font-bold text-xl">
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i>
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i>
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i>
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i>
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i> 
+          
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i>
           <span>XYZ College</span>
-          <img
-            src="https://www.brandium.nl/wp-content/uploads/2023/07/arrow-br.svg"
-            alt="arrow"
-            className="h-6 w-6"
-          />
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+          <span>XYZ College</span>
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+          <span>XYZ College</span>
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+          <span>XYZ College</span>
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+          <span>XYZ College</span>
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+
+          <span>XYZ College</span>
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+          <span>XYZ College</span>
+          <i class="ri-arrow-right-line h-6 w-6"></i>
+          <span>XYZ College</span>
+          
+          <span>XYZ College</span>
+          
           {/* <span>XYZ College </span> */}
         </div>
 

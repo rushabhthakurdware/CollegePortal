@@ -16,19 +16,25 @@ export default function Login() {
 
 
   const handleLogin = async () => {
-    try {
-      const res = await axios.post("http://localhost:5000/auth/login", form);
-      // alert(res.data.message);
+  try {
+    const res = await axios.post("http://localhost:5000/auth/login", form);
 
-      if (res.data.role === "student") navigate("/student");
-      if (res.data.role === "teacher") navigate("/teacher");
-      if (res.data.role === "admin") navigate("/admin");
+    const { role, username } = res.data;
+
+    // Save full logged-in user
+    localStorage.setItem("loggedInUser", JSON.stringify(res.data));
+
+    // Redirect based on role
+    if (role === "student") navigate("/student");
+    else if (role === "teacher") navigate("/teacher");
+    else navigate("/admin");
+
+  } catch {
+    alert("❌ Login failed! Check credentials.");
+  }
+};
 
 
-    } catch {
-      alert("❌ Login failed! Check credentials.");
-    }
-  };
 
 
   // Dynamic classes for dark/light mode

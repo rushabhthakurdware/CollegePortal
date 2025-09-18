@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
-
+import { useNavigate } from "react-router-dom";
 const PaymentPortal = () => {
   const [payment, setPayment] = useState(null);
   const [payAmount, setPayAmount] = useState("");
@@ -9,11 +9,13 @@ const PaymentPortal = () => {
   // Get logged-in student from localStorage
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
   const studentId = user?.username?.trim() || "student1"; // fallback if not in localStorage
-
+  const navigate = useNavigate();
   // Fetch payment data
   const fetchPayment = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/payments/${studentId}`);
+      const res = await axios.get(
+        `http://localhost:5000/api/payments/${studentId}`
+      );
       setPayment(res.data);
     } catch (err) {
       console.error(err);
@@ -46,21 +48,30 @@ const PaymentPortal = () => {
 
   // Download receipt
   const downloadReceipt = (txn) => {
-  const doc = new jsPDF();
-  doc.setFontSize(12);
-  doc.text(`Receipt ID: ${txn.id}`, 10, 10);
-  doc.text(`Student ID: ${studentId}`, 10, 20);
-  doc.text(`Amount Paid: ₹${txn.amount}`, 10, 30);
-  doc.text(`Date: ${txn.date}`, 10, 40);
-  doc.text(`Status: ${txn.status}`, 10, 50);
-  doc.save(`Receipt_${txn.id}.pdf`);
-};
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+    doc.text(`Receipt ID: ${txn.id}`, 10, 10);
+    doc.text(`Student ID: ${studentId}`, 10, 20);
+    doc.text(`Amount Paid: ₹${txn.amount}`, 10, 30);
+    doc.text(`Date: ${txn.date}`, 10, 40);
+    doc.text(`Status: ${txn.status}`, 10, 50);
+    doc.save(`Receipt_${txn.id}.pdf`);
+  };
 
   if (!payment) return <div className="p-5">Loading payment data...</div>;
 
   return (
     <div className="p-5">
-      <h2 className="text-2xl font-bold mb-4">Payment Portal</h2>
+      <button
+          onClick={() => navigate("/student")}
+          className="mb-4 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+        >
+          Back
+        </button>
+      <div className="flex items-center  mb-4 bg-gray-600 p-4 rounded">
+        
+        <h2 className="text-4xl font-bold mb-4 ml-115">Payment Portal</h2>
+      </div>
 
       <div className="mb-4">
         <p>Total Fees: ₹{payment.totalFees}</p>

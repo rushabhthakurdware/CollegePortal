@@ -90,12 +90,12 @@ app.use(express.json());
 const authRoutes = require("./routes/auth");
 const paymentRoutes = require("./routes/payments");
 const studentRoutes = require("./routes/students");
-const teacherRoutes = require("./routes/teachers");
+const teacherRoutes = require("./routes/teacher");
 
 // Use routes
 app.use("/auth", authRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/students", studentRoutes);
-app.use("/api/teachers", teacherRoutes);
+app.use("/api/teacher", teacherRoutes);
 
 app.listen(5000, () => console.log("Backend running on http://localhost:5000"));

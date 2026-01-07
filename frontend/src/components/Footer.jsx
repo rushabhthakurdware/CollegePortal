@@ -13,7 +13,7 @@ export default function Footer({ darkmode }) {
       {x: "-30vw" }, // Start completely off-screen to the left
       {
         x: "130vw",     // End completely off-screen to the right
-        duration: 6,   // Adjust time for speed (higher = slower)
+        duration: 10,   // Adjust time for speed (higher = slower)
         ease: "linear",
         repeat: -1,
       }

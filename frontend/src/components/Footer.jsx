@@ -1,68 +1,35 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
-export default function Footer({darkmode}) {
+export default function Footer({ darkmode }) {
   const marqueeRef = useRef();
-  
+
   useEffect(() => {
     const el = marqueeRef.current;
-    const contentWidth = el.scrollWidth / 2; // because we will duplicate
 
-    gsap.to(el, {
-      x: `${contentWidth}px`,
-      duration:7,
-      ease: "linear",
-      repeat: -1,
-    });
+    // We animate from -100% (hidden on left) to 100vw (past the right edge)
+    gsap.fromTo(
+      el,
+      {x: "-30vw" }, // Start completely off-screen to the left
+      {
+        x: "130vw",     // End completely off-screen to the right
+        duration: 6,   // Adjust time for speed (higher = slower)
+        ease: "linear",
+        repeat: -1,
+      }
+    );
   }, []);
 
   return (
-    <footer className="fixed bottom-0 w-full bg-indigo-600 py-2 overflow-hidden">
+    <footer className={`fixed bottom-0 w-full py-2 overflow-hidden transition-colors duration-500 ${darkmode ? "bg-gray-800" : "bg-indigo-600"}`}>
       <div
         ref={marqueeRef}
         className="flex whitespace-nowrap"
-        style={{ display: "inline-flex" }}
+        style={{ display: "inline-flex", willChange: "transform" }}
       >
-        {/* Original content */}
-        <div className="flex gap-4 text-white font-bold text-xl">
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i> 
-          
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          <i class="ri-arrow-right-line h-6 w-6"></i>
-          <span>XYZ College</span>
-          
-          <span>XYZ College</span>
-          
-          {/* <span>XYZ College </span> */}
+        <div className="text-white font-bold text-xl px-4">
+          Yeshwantrao Chavan College Of Engineering, Nagpur  
         </div>
-
-        
-       
-        
       </div>
     </footer>
   );

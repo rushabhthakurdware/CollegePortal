@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from "framer-motion";
 import axios from 'axios';
 
 const HomeIcon = () => (
@@ -24,6 +25,62 @@ const LogoutIcon = () => (
     <path fillRule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v9a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM6.91 6.194a.75.75 0 0 1 .206 1.002l-3.142 4.416a.75.75 0 0 1-.206.182l-2.435.534a.75.75 0 0 1-.362-.057.75.75 0 0 1-.157-.156.75.75 0 0 1-.157-.365l.534-2.433a.75.75 0 0 1 .18-.206L6.19 6.72a.75.75 0 0 1 1.002-.206ZM2.25 12a.75.75 0 0 1-.75-.75v-3a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5h-2.25v2.25H2.25Z" clipRule="evenodd" />
   </svg>
 );
+//addstudent modal
+
+const AddStudentModal = ({ isOpen, onClose, onAdd, batchNames }) => {
+  const [name, setName] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState(batchNames[0] || "");
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onAdd(selectedBatch, name);
+    setName("");
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl w-96 border border-gray-200 dark:border-gray-700"
+      >
+        <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Student</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            autoFocus
+            className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Student Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <select 
+            className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+            value={selectedBatch}
+            onChange={(e) => setSelectedBatch(e.target.value)}
+          >
+            {batchNames.map(b => <option key={b} value={b}>Batch {b}</option>)}
+          </select>
+          <div className="flex gap-2 pt-2">
+            <button 
+              type="button" 
+              onClick={onClose}
+              className="flex-1 py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-semibold"
+            >Cancel</button>
+            <button 
+              type="submit" 
+              className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+            >Add Student</button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+};
+
 
 // Mock data
 const mockPayments = [
@@ -52,7 +109,18 @@ const AdminDashboard = () => {
   const [batches, setBatches] = useState(mockBatches);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+const [isModalOpen, setIsModalOpen] = useState(false);
 
+const handleAddStudent = (batch, name) => {
+  setBatches(prev => ({
+    ...prev,
+    [batch]: {
+      ...prev[batch],
+      count: prev[batch].count + 1,
+      students: [...prev[batch].students, name]
+    }
+  }));
+};
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -179,26 +247,45 @@ const AdminDashboard = () => {
           </div>
         );
       case 'students':
-        return (
-          <div className="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Students by Batch</h2>
-            <div className="space-y-6">
-              {Object.keys(batches).map(batchName => (
-                <div key={batchName} className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Batch {batchName}</h3>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full">{batches[batchName].count} Students</span>
-                  </div>
-                  <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
-                    {batches[batchName].students.map(studentName => (
-                      <li key={studentName}>{studentName}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+  return (
+    <div className="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Students by Batch</h2>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold shadow-md transition-all flex items-center gap-2"
+        >
+          <span>+</span> Add Student
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        {Object.keys(batches).map(batchName => (
+          <div key={batchName} className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Batch {batchName}</h3>
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full">
+                {batches[batchName].students.length} Students
+              </span>
             </div>
+            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
+              {batches[batchName].students.map((studentName, idx) => (
+                <li key={idx}>{studentName}</li>
+              ))}
+            </ul>
           </div>
-        );
+        ))}
+      </div>
+
+      {/* Modal is placed here so it has access to batch names */}
+      <AddStudentModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        batchNames={Object.keys(batches)}
+        onAdd={handleAddStudent}
+      />
+    </div>
+  );
       default:
         return null;
     }

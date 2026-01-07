@@ -65,7 +65,7 @@ export default function AttendanceCard() {
       gsap.fromTo(
         cardRef.current,
         { x: 6000, opacity: 0 }, // start 300px left and invisible
-        { x: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.7 } // animate to normal position
+        { x: 0, opacity: 1, duration: 0.8, ease: "expo.out", delay: 0 } // animate to normal position
       );
     }, []);
 

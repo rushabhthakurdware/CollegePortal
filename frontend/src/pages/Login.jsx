@@ -93,7 +93,7 @@ export default function Login() {
           className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none  ${inputTextColor}`}
         >
 
-          Welcome to XYZ College portal
+          Welcome to YCCE College portal
           
         </motion.h2>
 

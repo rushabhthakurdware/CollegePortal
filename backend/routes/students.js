@@ -1,9 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-// dummy endpoint
-router.get("/", (req, res) => {
-  res.json({ message: "Student API working" });
+// ✅ IMPORT STUDENT MODEL
+const Student = require("../models/Student");
+
+// GET all students from MongoDB
+router.get("/", async (req, res) => {
+  try {
+    const students = await Student.find({});
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;

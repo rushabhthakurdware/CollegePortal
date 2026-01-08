@@ -3,57 +3,95 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
+
 export default function Login() {
   const [form, setForm] = useState({
     username: "",
+    email: "",
     password: "",
     role: "student",
   });
 
-
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
-
   const handleLogin = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/auth/login", form);
+
+      const { role, username } = res.data;
+
+      // Save full logged-in user
+      localStorage.setItem("loggedInUser", JSON.stringify(res.data));
+
+      // Redirect based on role
+      if (role === "student") navigate("/student");
+      else if (role === "teacher") navigate("/teacher");
+      else navigate("/admin");
+    } catch {
+      alert("❌ Login failed! Check credentials.");
+    }
+  };
+
+  
+   const handleRegister = async () => {
+  console.log("REGISTER BUTTON CLICKED"); // 🔥 DEBUG LINE
+
   try {
-    const res = await axios.post("http://localhost:5000/auth/login", form);
+    const res = await axios.post("http://localhost:5000/auth/register", {
+      username: form.username,
+      email: form.email,
+      password: form.password,
+      role: form.role,
+    });
 
-    const { role, username } = res.data;
+    console.log("REGISTER RESPONSE:", res.data);
+    alert("✅ Registered successfully! Now login.");
 
-    // Save full logged-in user
-    localStorage.setItem("loggedInUser", JSON.stringify(res.data));
-
-    // Redirect based on role
-    if (role === "student") navigate("/student");
-    else if (role === "teacher") navigate("/teacher");
-    else navigate("/admin");
-
-  } catch {
-    alert("❌ Login failed! Check credentials.");
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+    alert(error.response?.data?.msg || "❌ Registration failed");
   }
 };
 
-
-
-
-  // Dynamic classes for dark/light mode
+const handleForgotPassword = async()=>{
+  if(!form.email){
+    alert("Please enter your email to reset password");
+    return;
+  }
+  try{
+    const res = await axios.post("http://localhost:5000/auth/forgot-password",
+      {email:form.email,
+      role:form.role
+      });
+      alert(res.data.msg);
+  }catch(error){
+    alert(error.response?.data?.msg || "❌ Password reset failed");
+  }
+}
+// Dynamic classes for dark/light mode
   const textColor = darkMode ? "text-white" : "text-gray-800";
 
-  const inputTextColor = darkMode? "text-white placeholder-gray-400": "text-gray-800 placeholder-gray-500";
+  const inputTextColor = darkMode
+    ? "text-white placeholder-gray-400"
+    : "text-gray-800 placeholder-gray-500";
 
-  const inputBg = darkMode? "bg-gray-700 border-gray-600": "bg-gray-300 border-gray-300";
+  const inputBg = darkMode
+    ? "bg-gray-700 border-gray-600"
+    : "bg-gray-300 border-gray-300";
 
-  const buttonBg = darkMode? "bg-indigo-700 hover:bg-indigo-800": "bg-indigo-600 hover:bg-indigo-700";
+  const buttonBg = darkMode
+    ? "bg-indigo-700 hover:bg-indigo-800"
+    : "bg-indigo-600 hover:bg-indigo-700";
 
 
   return (
-
     <div
-      className={`flex h-screen items-center justify-center font-[Poppins] transition-colors duration-500 ${darkMode ? "bg-gray-900" : "bg-indigo-400"}`}
+      className={`flex h-screen items-center justify-center font-[Poppins] transition-colors duration-500 ${
+        darkMode ? "bg-gray-900" : "bg-indigo-400"
+      }`}
       style={{ perspective: "1200px" }}
     >
-
       {/* Dark Mode Toggle */}
       <motion.button
         id="darkModeToggle"
@@ -63,9 +101,7 @@ export default function Login() {
         transition={{ duration: 0.5, ease: "easeInOut" }}
         className="absolute top-6  w-10 right-6 p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition"
       >
-
         <i className={darkMode ? "ri-sun-fill" : "ri-moon-fill"}></i>
-
       </motion.button>
 
       {/* Form Card */}
@@ -78,33 +114,37 @@ export default function Login() {
           scale: darkMode ? 0.95 : 1, // shrink slightly in dark mode
         }}
         transition={{ duration: 2, ease: "easeInOut" }}
-        className={`p-8 rounded-2xl shadow-2xl w-130 h-130 transition-colors duration-500 ${darkMode ? "bg-gray-900" : "bg-white"}`}
+        className={`p-8 rounded-2xl shadow-2xl w-130 h-130 transition-colors duration-500 ${
+          darkMode ? "bg-gray-900" : "bg-white"
+        }`}
         style={{ transformStyle: "preserve-3d" }}
       >
-
-
         {/* Title */}
         <motion.h2
-
           //   animate={{ opacity: darkMode ? 0 : 1 }}
           transition={{ duration: 0.6 }}
-
           //   style={{ backfaceVisibility: "hidden" }}
           className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none  ${inputTextColor}`}
         >
-
-          Welcome to XYZ College portal
-          
+          Welcome to YCCE College portal
         </motion.h2>
 
         {/* Inputs */}
         <input
-        type="text"
-        autoComplete="off"
+          type="text"
+          autoComplete="off"
           className={`w-full mb-4 p-3 rounded-lg  focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
           placeholder="Username"
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
+        />
+        <input
+          type="email"
+          autoComplete="off"
+          className={`w-full mb-4 p-3 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
+          placeholder="Email"
+          value={form.email}
+          onChange={(e)=>setForm({ ...form,email:e.target.value})}
         />
         <input
           type="password"
@@ -126,6 +166,20 @@ export default function Login() {
           <option value="admin">⚙️ Admin</option>
         </select>
 
+        {/* Register Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleRegister}
+          className={`w-full mb-4 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 text-white ${
+            darkMode
+              ? "bg-green-700 hover:bg-green-800"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
+        >
+          Register
+        </motion.button>
+
         {/* Login Button */}
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -142,7 +196,7 @@ export default function Login() {
         >
           Forgot your password?{" "}
           <span
-            onClick={() => navigate("/forgot-password")}
+            onClick={()=>navigate("/reset-password")}
             className="text-indigo-400 font-semibold cursor-pointer hover:underline"
           >
             Reset here

@@ -64,7 +64,7 @@ const initialCourses = [
     instructor: "Prof. Mehta",
     duration: "8 Weeks",
     status: "Ongoing",
-    status: "Ongoing",
+    
     description: "Comprehensive study of operating system concepts including process management, memory management, and file systems.",
   syllabus: [
     "Week 1: Introduction & System Structures",

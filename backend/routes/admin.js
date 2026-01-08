@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-// ✅ Import Teacher model
-const Teacher = require("../models/Teacher");
+// ✅ Import Admin model
+const Admin = require("../models/Admin");
 
-// GET all teachers from MongoDB
+// GET all admins from MongoDB
 router.get("/", async (req, res) => {
   try {
-    const teachers = await Teacher.find({});
-    res.json(teachers);
+    const admins = await Admin.find({});
+    res.json(admins);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

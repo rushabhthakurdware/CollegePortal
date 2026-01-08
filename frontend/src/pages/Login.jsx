@@ -126,7 +126,9 @@ const handleForgotPassword = async()=>{
           //   style={{ backfaceVisibility: "hidden" }}
           className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none  ${inputTextColor}`}
         >
-          Welcome to YCCE College portal
+
+          Welcome to XYZ College portal
+          
         </motion.h2>
 
         {/* Inputs */}

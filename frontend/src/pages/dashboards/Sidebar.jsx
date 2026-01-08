@@ -28,14 +28,14 @@ export default function Sidebar({ isOpen, onClose }) {
     tl.current.fromTo(
       overlayRef.current,
       { opacity: 0, pointerEvents: "none" },
-      { opacity: 1, pointerEvents: "auto", duration: 0.4, ease: "power1.out" }
+      { opacity: 1, pointerEvents: "auto", duration: 0.3, ease: "power1.out" }
     );
 
     // Sidebar slide in
     tl.current.fromTo(
       sidebarRef.current,
       { x: "100%" },
-      { x: "0%", duration: 0.5, delay: 0.1, ease: "power3.in" }
+      { x: "0%", duration: 0.3, delay: 0, ease: "power1.in" }
     );
 
     // Stagger links in
@@ -45,8 +45,8 @@ export default function Sidebar({ isOpen, onClose }) {
       {
         x: 0,
         opacity: 1,
-        duration: 0.5,
-        stagger: 0.3,
+        duration: 0.1,
+        stagger: 0.1,
         ease: "power3.out",
       },
       "-=0.2"

@@ -5,10 +5,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import "./App.css";
 import Footer from "./components/Footer";
 
+import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/dashboards/StudentDashboard";
 import TeacherDashboard from "./pages/dashboards/TeacherDashboard";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
-
 
 import Profile from "./pages/Profile";
 import Courses from "./pages/Courses";
@@ -30,9 +30,32 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Dashboards */}
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/teacher" element={<TeacherDashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+            path="/student"
+            element={
+              <ProtectedRoute allowedRole="student">
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/teacher"
+            element={
+              <ProtectedRoute allowedRole="teacher">
+                <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Sidebar Pages */}
           <Route path="/profile" element={<Profile />} />

@@ -8,7 +8,7 @@ import NoticesCard from "../../utils/NoticesCard";
 import MessagesCard from "../../utils/MessagesCard";
 import CalendarCard from "../../utils/CalendarCard";
 import ResourcesCard from "../../utils/ResourcesCard";
-
+import axios from "axios";
 
 export default function StudentDashboard() {
   const [showModal, setShowModal] = useState(false);
@@ -20,8 +20,19 @@ export default function StudentDashboard() {
   const overlayRef = useRef();
 
   const handleLogout = () => {
+    localStorage.removeItem("loggedInUser");
     window.location.href = "/";
   };
+
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const[student,setStudent] =useState(null);
+
+  useEffect(()=>{
+    if(!user) return ;
+    axios.get("http://localhost:5000/api/students/"+user.username)
+    .then((res)=>{setStudent(res.data)})
+    .catch((err)=> {console.error(err)});
+  }, [user.username]);
 
   // Animate header text and logout button on mount
   useEffect(() => {
@@ -85,6 +96,10 @@ export default function StudentDashboard() {
     );
   }, []);
 
+  if (!student) {
+  return <p className="p-6">Loading student data...</p>;
+}
+
   return (
     <>
       <Header
@@ -99,26 +114,27 @@ export default function StudentDashboard() {
       {/* Sidebar Integration */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
+
       {/* Stats cards */}
       <main className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="col-span-1 lg:col-span-1">
-          <AttendanceCard  delay={0}/>
+          <AttendanceCard attendance ={student.attendance || "N/A"} delay={1}/>
         </div>
 
         <div className="col-span-1 lg:col-span-2">
-          <NoticesCard  delay={1}/>
+          <NoticesCard notices={student.notices || []} delay={1}/>
         </div>
 
         <div className="col-span-2 lg:col-span-2">
-          <MessagesCard />
+          <MessagesCard messages={student.messages ||[]}/>
         </div>
 
         <div className="col-span-1 lg:col-span-1">
-          <CalendarCard />
+          <CalendarCard  calender={student.calendar || {}}/>
         </div>
 
         <div className="col-span-1 lg:col-span-3 m-5">
-          <ResourcesCard />
+          <ResourcesCard resources={student.resources || [] }/>
         </div>
       </main>
     </>

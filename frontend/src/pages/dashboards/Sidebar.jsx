@@ -1,6 +1,6 @@
 
 // Sidebar.jsx
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef , useState } from "react";
 import gsap from "gsap";
 import LogoutButton from "../../components/LogoutButton";
 import { Link } from "react-router-dom";
@@ -19,6 +19,9 @@ export default function Sidebar({ isOpen, onClose }) {
     { name: "📊 Grades", path: "/grades" },
     { name: "💳 Payment Portal", path: "/payment" },
   ];
+
+  const [username, setUsername] = useState("");
+
 
   useEffect(() => {
     // Create timeline only once
@@ -61,6 +64,14 @@ export default function Sidebar({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (user?.username) {
+    setUsername(user.username);
+  }
+}, []);
+
+
   return (
     <>
       {/* Overlay */}
@@ -78,7 +89,7 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-indigo-500">
-          <h2 className="text-lg font-bold">Student Portal</h2>
+          <h2 className="text-lg font-bold">Welcome  {username}</h2>
           <button
             className="text-2xl hover:text-red-400"
             onClick={onClose}

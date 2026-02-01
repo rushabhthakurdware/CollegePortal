@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import DialogBox from "../components/DialogBox";
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -12,6 +12,16 @@ export default function Login() {
     role: "student",
   });
 
+  const [dialog, setDialog] = useState({
+    open: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+
+  const showDialog = (type, title, message) => {
+    setDialog({ open: true, type, title, message });
+  };
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
@@ -29,47 +39,68 @@ export default function Login() {
       else if (role === "teacher") navigate("/teacher");
       else navigate("/admin");
     } catch {
-      alert("❌ Login failed! Check credentials.");
+      showDialog(
+        "error",
+        "Login Failed",
+        "Invalid username or password. Please try again.",
+      );
     }
   };
 
-  
-   const handleRegister = async () => {
-  console.log("REGISTER BUTTON CLICKED"); // 🔥 DEBUG LINE
+  const handleRegister = async () => {
+    console.log("REGISTER BUTTON CLICKED"); // 🔥 DEBUG LINE
 
-  try {
-    const res = await axios.post("http://localhost:5000/auth/register", {
-      username: form.username,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-    });
-
-    console.log("REGISTER RESPONSE:", res.data);
-    alert("✅ Registered successfully! Now login.");
-
-  } catch (error) {
-    console.error("REGISTER ERROR:", error);
-    alert(error.response?.data?.msg || "❌ Registration failed");
-  }
-};
-
-const handleForgotPassword = async()=>{
-  if(!form.email){
-    alert("Please enter your email to reset password");
-    return;
-  }
-  try{
-    const res = await axios.post("http://localhost:5000/auth/forgot-password",
-      {email:form.email,
-      role:form.role
+    try {
+      const res = await axios.post("http://localhost:5000/auth/register", {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        role: form.role,
       });
-      alert(res.data.msg);
-  }catch(error){
-    alert(error.response?.data?.msg || "❌ Password reset failed");
-  }
-}
-// Dynamic classes for dark/light mode
+
+      console.log("REGISTER RESPONSE:", res.data);
+      showDialog(
+        "success",
+        "Registration Successful",
+        "Your account has been created. Please login.",
+      );
+    } catch (error) {
+      showDialog(
+        "error",
+        "Registration Failed",
+        error.response?.data?.msg || "Please check your details and try again.",
+      );
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!form.email) {
+      showDialog(
+        "info",
+        "Email Required",
+        "Please enter your email to reset your password.",
+      );
+      return;
+    }
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/auth/forgot-password",
+        { email: form.email, role: form.role },
+      );
+      showDialog("success", "Password Reset", res.data.msg);
+    } catch (error) {
+      showDialog(
+        "error",
+        "Reset Failed",
+        error.response?.data?.msg || "Password reset failed.",
+      );
+    }
+  };
+
+  useEffect(() => {
+    localStorage.removeItem("loggedInUser");
+  }, []);
+  // Dynamic classes for dark/light mode
   const textColor = darkMode ? "text-white" : "text-gray-800";
 
   const inputTextColor = darkMode
@@ -83,7 +114,6 @@ const handleForgotPassword = async()=>{
   const buttonBg = darkMode
     ? "bg-indigo-700 hover:bg-indigo-800"
     : "bg-indigo-600 hover:bg-indigo-700";
-
 
   return (
     <div
@@ -126,9 +156,7 @@ const handleForgotPassword = async()=>{
           //   style={{ backfaceVisibility: "hidden" }}
           className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none  ${inputTextColor}`}
         >
-
-          Welcome to XYZ College portal
-          
+          Welcome to YCCE College portal
         </motion.h2>
 
         {/* Inputs */}
@@ -146,7 +174,7 @@ const handleForgotPassword = async()=>{
           className={`w-full mb-4 p-3 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
           placeholder="Email"
           value={form.email}
-          onChange={(e)=>setForm({ ...form,email:e.target.value})}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
         <input
           type="password"
@@ -198,13 +226,21 @@ const handleForgotPassword = async()=>{
         >
           Forgot your password?{" "}
           <span
-            onClick={()=>navigate("/reset-password")}
+            onClick={() => navigate("/reset-password")}
             className="text-indigo-400 font-semibold cursor-pointer hover:underline"
           >
             Reset here
           </span>
         </p>
       </motion.div>
+
+      <DialogBox
+        open={dialog.open}
+        type={dialog.type}
+        title={dialog.title}
+        message={dialog.message}
+        onClose={() => setDialog({ ...dialog, open: false })}
+      />
     </div>
   );
 }

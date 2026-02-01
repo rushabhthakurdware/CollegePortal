@@ -5,10 +5,13 @@ const router = express.Router();
 const Student = require("../models/Student");
 
 // GET all students from MongoDB
-router.get("/", async (req, res) => {
+router.get("/:username", async (req, res) => {
   try {
-    const students = await Student.find({});
-    res.json(students);
+    const student = await Student.findOne({
+      username:req.params.username
+    });
+    if(!student){return res.status(404).json({message:"Student not found"})}
+    res.json(student);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

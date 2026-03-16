@@ -28,7 +28,9 @@ router.post("/", async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-  res.json({ msg: "Login successful", role: user.role, username: user.username });
+  res.json({ msg: "Login successful", role: user.role, username: user.username, id: user._id });
+
+  
 });
 
 module.exports = router;

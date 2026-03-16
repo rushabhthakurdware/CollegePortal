@@ -1,43 +1,81 @@
 const express = require("express");
 const router = express.Router();
+const Payment = require("../models/Payment");
 
-// Dummy payment data
-let payments = {
-  student1: {
-    totalFees: 50000,
-    paidAmount: 20000,
-    transactions: [
-      { id: 1, amount: 10000, date: "2025-09-07", status: "Paid" },
-      { id: 2, amount: 10000, date: "2025-09-08", status: "Paid" },
-    ],
-  },
-};
-
-// GET payment info
-router.get("/:studentId", (req, res) => {
-  const studentId = req.params.studentId.trim(); // <-- trim here too
-  const payment = payments[studentId];
-  if (!payment) return res.status(404).json({ msg: "No payment data found" });
-  res.json(payment);
+// ✅ Get or Create payment record for a student
+router.get("/:username", async (req, res) => {
+  try {
+    let payment = await Payment.findOne({ studentUsername: req.params.username });
+    if (!payment) {
+      // Initialize a new student with default values
+      payment = new Payment({ 
+        studentUsername: req.params.username,
+        totalFees: 50000, 
+        paidAmount: 0,
+        transactions: [] 
+      });
+      await payment.save();
+    }
+    res.json(payment);
+  } catch (err) { 
+    res.status(500).json({ error: "Could not fetch student record" }); 
+  }
 });
 
-// POST pay
-router.post("/:studentId/pay", (req, res) => {
-  const { studentId } = req.params;
+// ✅ Process a payment
+router.post("/:username/pay", async (req, res) => {
   const { amount } = req.body;
+  try {
+    const payment = await Payment.findOne({ studentUsername: req.params.username });
+    
+    if (!payment) return res.status(404).json({ error: "Student not found" });
 
-  if (!payments[studentId]) payments[studentId] = { totalFees: 50000, paidAmount: 0, transactions: [] };
+    const newTxn = {
+      id: "TXN-" + Math.random().toString(36).toUpperCase().substring(2, 10),
+      amount: Number(amount), // Force amount to be a number
+      date: new Date(),       // ✅ FIX: Save as a real Date object, not a string
+      status: "Pending Verification"
+    };
 
-  payments[studentId].paidAmount += amount;
-  const txn = {
-    id: payments[studentId].transactions.length + 1,
-    amount,
-    date: new Date().toISOString().split("T")[0],
-    status: "Paid",
-  };
-  payments[studentId].transactions.push(txn);
+    payment.transactions.push(newTxn);
+    // ✅ Use Number() to prevent string concatenation (e.g., 0 + "500" = "0500")
+    payment.paidAmount = (Number(payment.paidAmount) || 0) + Number(amount);
+    
+    await payment.save();
+    res.json({ payment });
+  } catch (err) { 
+    console.error(err);
+    res.status(500).json({ error: "Transaction failed" }); 
+  }
+});
 
-  res.json({ payment: payments[studentId], txn });
+// ✅ Admin Route: Get ALL transactions across ALL students
+router.get("/admin/all-transactions", async (req, res) => {
+  try {
+    const allStudents = await Payment.find();
+    let ledger = [];
+
+    allStudents.forEach(record => {
+      if (record.transactions) {
+        record.transactions.forEach(txn => {
+          ledger.push({
+            student: record.studentUsername,
+            id: txn.id,
+            amount: Number(txn.amount) || 0, 
+            date: txn.date,
+            status: txn.status
+          });
+        });
+      }
+    });
+
+    // ✅ Sort by newest first before sending
+    ledger.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.json(ledger);
+  } catch (err) {
+    res.status(500).json({ error: "Data fetch failed" });
+  }
 });
 
 module.exports = router;

@@ -19,101 +19,83 @@ export default function Login() {
     message: "",
   });
 
-  const showDialog = (type, title, message) => {
-    setDialog({ open: true, type, title, message });
-  };
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpInput, setOtpInput] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const showDialog = (type, title, message) => {
+    setDialog({ open: true, type, title, message });
+  };
+
+  // Inside Login.jsx
+const handleLogin = async () => {
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/login", form);
+    
+    // 1. Check if res.data actually has the username
+    console.log("Login Response Data:", res.data); 
+
+    const { role, token, username } = res.data; 
+
+    // 2. Save the data. 
+    // We will save the whole object so StudentDashboard can find 'username'
+    localStorage.setItem("token", token);
+    localStorage.setItem("loggedInUser", JSON.stringify(res.data));
+
+    if (role === "student") navigate("/student");
+    else if (role === "teacher") navigate("/teacher");
+    else navigate("/admin");
+  } catch (error) {
+    showDialog("error", "Login Failed", "Invalid credentials.");
+  }
+};
+
+  const handleSendOtp = async () => {
+    if (!form.email || !form.username) {
+      showDialog("info", "Details Required", "Please enter username and email first.");
+      return;
+    }
     try {
-      const res = await axios.post("http://localhost:5000/auth/login", form);
-
-      const { role, username } = res.data;
-
-      // Save full logged-in user
-      localStorage.setItem("loggedInUser", JSON.stringify(res.data));
-
-      // Redirect based on role
-      if (role === "student") navigate("/student");
-      else if (role === "teacher") navigate("/teacher");
-      else navigate("/admin");
-    } catch {
-      showDialog(
-        "error",
-        "Login Failed",
-        "Invalid username or password. Please try again.",
-      );
+      setIsVerifying(true);
+      await axios.post("http://localhost:5000/api/auth/send-otp", { email: form.email });
+      setOtpSent(true);
+      showDialog("success", "OTP Sent", "Please check your email for the 6-digit code.");
+    } catch (error) {
+      showDialog("error", "Failed", error.response?.data?.message || "Error sending OTP.");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
   const handleRegister = async () => {
-    console.log("REGISTER BUTTON CLICKED"); // 🔥 DEBUG LINE
-
     try {
-      const res = await axios.post("http://localhost:5000/auth/register", {
+      await axios.post("http://localhost:5000/api/auth/verify-and-register", {
+        name: form.username,
         username: form.username,
         email: form.email,
         password: form.password,
         role: form.role,
+        otp: otpInput,
       });
 
-      console.log("REGISTER RESPONSE:", res.data);
-      showDialog(
-        "success",
-        "Registration Successful",
-        "Your account has been created. Please login.",
-      );
+      showDialog("success", "Registration Successful", "Account created! You can now login.");
+      setOtpSent(false);
+      setOtpInput("");
     } catch (error) {
-      showDialog(
-        "error",
-        "Registration Failed",
-        error.response?.data?.msg || "Please check your details and try again.",
-      );
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!form.email) {
-      showDialog(
-        "info",
-        "Email Required",
-        "Please enter your email to reset your password.",
-      );
-      return;
-    }
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/auth/forgot-password",
-        { email: form.email, role: form.role },
-      );
-      showDialog("success", "Password Reset", res.data.msg);
-    } catch (error) {
-      showDialog(
-        "error",
-        "Reset Failed",
-        error.response?.data?.msg || "Password reset failed.",
-      );
+      showDialog("error", "Verification Failed", error.response?.data?.message || "Invalid OTP.");
     }
   };
 
   useEffect(() => {
     localStorage.removeItem("loggedInUser");
   }, []);
-  // Dynamic classes for dark/light mode
+
   const textColor = darkMode ? "text-white" : "text-gray-800";
-
-  const inputTextColor = darkMode
-    ? "text-white placeholder-gray-400"
-    : "text-gray-800 placeholder-gray-500";
-
-  const inputBg = darkMode
-    ? "bg-gray-700 border-gray-600"
-    : "bg-gray-300 border-gray-300";
-
-  const buttonBg = darkMode
-    ? "bg-indigo-700 hover:bg-indigo-800"
-    : "bg-indigo-600 hover:bg-indigo-700";
+  const inputTextColor = darkMode ? "text-white placeholder-gray-400" : "text-gray-800 placeholder-gray-500";
+  const inputBg = darkMode ? "bg-gray-700 border-gray-600" : "bg-gray-300 border-gray-300";
+  const buttonBg = darkMode ? "bg-indigo-700 hover:bg-indigo-800" : "bg-indigo-600 hover:bg-indigo-700";
 
   return (
     <div
@@ -129,41 +111,37 @@ export default function Login() {
         whileTap={{ scale: 0.8 }}
         animate={{ rotate: darkMode ? 360 : 180 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        className="absolute top-6  w-10 right-6 p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition"
+        className="absolute top-6 w-10 right-6 p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition"
       >
         <i className={darkMode ? "ri-sun-fill" : "ri-moon-fill"}></i>
       </motion.button>
 
       {/* Form Card */}
       <motion.div
-        initial={{ y: -100, opacity: 0 }} // starts 50px above and invisible
+        initial={{ y: -100, opacity: 0 }}
         animate={{
-          y: 0, // slides down to normal position
-          opacity: 1, // fades in
-          rotateY: darkMode ? 360 : 0, // 3D rotation
-          scale: darkMode ? 0.95 : 1, // shrink slightly in dark mode
+          y: 0,
+          opacity: 1,
+          rotateY: darkMode ? 360 : 0,
+          scale: darkMode ? 0.95 : 1,
         }}
         transition={{ duration: 2, ease: "easeInOut" }}
-        className={`p-8 rounded-2xl shadow-2xl w-130 h-130 transition-colors duration-500 ${
+        className={`p-8 rounded-2xl shadow-2xl w-130 min-h-[500px] h-auto transition-colors duration-500 ${
           darkMode ? "bg-gray-900" : "bg-white"
         }`}
         style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Title */}
         <motion.h2
-          //   animate={{ opacity: darkMode ? 0 : 1 }}
           transition={{ duration: 0.6 }}
-          //   style={{ backfaceVisibility: "hidden" }}
-          className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none  ${inputTextColor}`}
+          className={`text-3xl font-extrabold mb-6 text-center transition-colors duration-500 outline-none ${inputTextColor}`}
         >
           Welcome to YCCE College portal
         </motion.h2>
 
-        {/* Inputs */}
         <input
           type="text"
           autoComplete="off"
-          className={`w-full mb-4 p-3 rounded-lg  focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
+          className={`w-full mb-4 p-3 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
           placeholder="Username"
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -185,7 +163,6 @@ export default function Login() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
-        {/* Select */}
         <select
           className={`w-full mb-6 p-3 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none transition-colors duration-500 ${inputBg} ${inputTextColor}`}
           value={form.role}
@@ -196,21 +173,41 @@ export default function Login() {
           <option value="admin">⚙️ Admin</option>
         </select>
 
-        {/* Register Button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleRegister}
-          className={`w-full mb-4 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 text-white ${
-            darkMode
-              ? "bg-green-700 hover:bg-green-800"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
-        >
-          Register
-        </motion.button>
+        {otpSent && (
+          <motion.input
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            type="text"
+            placeholder="Enter 6-digit OTP"
+            className={`w-full mb-4 p-3 rounded-lg border-2 border-indigo-500 font-mono tracking-widest text-center transition-colors duration-500 ${inputBg} ${inputTextColor}`}
+            value={otpInput}
+            onChange={(e) => setOtpInput(e.target.value)}
+          />
+        )}
 
-        {/* Login Button */}
+        {!otpSent ? (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSendOtp}
+            disabled={isVerifying}
+            className={`w-full mb-4 py-3 rounded-lg font-semibold shadow-md text-white ${
+              isVerifying ? "bg-gray-500" : "bg-orange-600 hover:bg-orange-700"
+            }`}
+          >
+            {isVerifying ? "Sending..." : "Get OTP to Register"}
+          </motion.button>
+        ) : (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleRegister}
+            className="w-full mb-4 py-3 rounded-lg font-semibold shadow-md text-white bg-green-600 hover:bg-green-700"
+          >
+            Verify & Complete Registration
+          </motion.button>
+        )}
+
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -220,10 +217,7 @@ export default function Login() {
           Login
         </motion.button>
 
-        {/* Forgot Password */}
-        <p
-          className={`text-sm text-center mt-4 transition-colors duration-500 ${textColor}`}
-        >
+        <p className={`text-sm text-center mt-4 transition-colors duration-500 ${textColor}`}>
           Forgot your password?{" "}
           <span
             onClick={() => navigate("/reset-password")}

@@ -1,107 +1,119 @@
-// const express = require("express");
-// const bcrypt = require("bcryptjs");
+// Inside your Register or Forgot Password route in backend/routes/auth.js
+const express = require("express");
+const router = express.Router(); // ✅ ADD THIS
 
-// const Student = require("../../models/Student");
-// const Teacher = require("../../models/Teacher");
-// const Admin = require("../../models/Admin");
+const bcrypt = require("bcryptjs");
+// ✅ Change these from ../ to ../../
+const User = require("../../models/User"); 
+const OTP = require("../../models/OTP");   
+const sendEmail = require("../../utils/sendEmail");
+// ... (your other imports)
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
 
-// const router = express.Router();
+  try {
+    await sendEmail({
+      email: email,
+      subject: "YCCE Security: Your OTP Code",
+      message: `Your verification code is ${otp}. It expires in 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+          <h2 style="color: #4f46e5;">YCCE Academic Portal</h2>
+          <p>You requested a password reset. Use the code below:</p>
+          <h1 style="background: #f3f4f6; padding: 10px; text-align: center; letter-spacing: 5px;">${otp}</h1>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+      `,
+    });
 
+    // Save OTP to user in DB (temporarily)
+    // ... logic to save to DB ...
 
-// router.post("/register", async (req, res) => {
-//   const { username, email, password, role } = req.body;
+    res.status(200).json({ message: "OTP sent to email!" });
+  } catch (err) {
+    res.status(500).json({ error: "Email could not be sent." });
+  }
+});
 
-//   if (!username || !email || !password || !role) {
-//     return res.status(400).json({ msg: "All fields required" });
-//   }
+// backend/routes/auth.js
 
-//   const hashedPassword = await bcrypt.hash(password, 10);
+router.post("/send-otp", async (req, res) => {
+  console.log("OTP Request received for:", req.body.email);
+  const { email } = req.body;
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "User already registered" });
 
-//   let user;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Save/Update OTP
+    await OTP.findOneAndUpdate({ email }, { otp }, { upsert: true, new: true });
+    
+    await sendEmail({
+      email,
+      subject: "Verify your YCCE Account",
+      html: `<h1>Your Registration OTP is: ${otp}</h1>`
+    });
 
-//   if (role === "student") {
-//     user = new Student({ username, email, password: hashedPassword });
-//   } else if (role === "teacher") {
-//     user = new Teacher({ username, email, password: hashedPassword });
-//   } else if (role === "admin") {
-//     user = new Admin({ username, email, password: hashedPassword });
-//   }
+    res.status(200).json({ message: "OTP sent to email" });
+  } catch (err) {
+    res.status(500).json({ message: "Error sending email" });
+  }
+});
 
-//   await user.save();
-//   res.status(201).json({ msg: `${role} registered successfully` });
-// });
+// --- Final Registration ---
+router.post("/verify-and-register", async (req, res) => {
+  const { name, username, email, password, role, otp } = req.body;
+  try {
+    const validOtp = await OTP.findOne({ email, otp });
+    if (!validOtp) return res.status(400).json({ message: "Invalid or expired OTP" });
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ name, username, email, password: hashedPassword, role });
+    
+    await newUser.save();
+    await OTP.deleteMany({ email }); 
 
-// /* ================= LOGIN ================= */
-// router.post("/login", async (req, res) => {
-//   const { username, password, role } = req.body;
+    res.status(201).json({ message: "User verified and created successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: "Database Error" });
+  }
+});
 
-//   if (!username || !password || !role) {
-//     return res.status(400).json({ msg: "All fields required" });
-//   }
+// backend/routes/auth/auth.js
 
-//   let user;
+// ... (your existing send-otp and register routes)
 
-//   try {
-//     if (role === "student") {
-//       user = await Student.findOne({ username });
-//     } else if (role === "teacher") {
-//       user = await Teacher.findOne({ username });
-//     } else if (role === "admin") {
-//       user = await Admin.findOne({ username });
-//     } else {
-//       return res.status(400).json({ msg: "Invalid role" });
-//     }
+const jwt = require("jsonwebtoken");
 
-//     if (!user) {
-//       return res.status(400).json({ msg: "Invalid credentials" });
-//     }
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ msg: "Invalid credentials" });
-//     }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ msg: "User not found" });
 
-//     res.json({
-//       msg: "Login successful",
-//       role: user.role,
-//       username: user.username
-//     });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-//   } catch (error) {
-//     res.status(500).json({ msg: "Server error" });
-//   }
-// });
+    // Create a Token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || "your_default_secret", // Use an env variable!
+      { expiresIn: "1d" } // Token lasts for 1 day
+    );
 
-// /* ============ FORGOT PASSWORD ============ */
-// router.post("/forgot-password", async (req, res) => {
-//   const { email, role } = req.body;
+    res.json({
+      token, // Send the token to frontend
+      id: user._id,
+      role: user.role,
+      username: user.username, // <--- MUST HAVE THIS
+      // name: user.name
+    });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error" });
+  }
+});
 
-//   if (!email || !role) {
-//     return res.status(400).json({ msg: "Email and role required" });
-//   }
-
-//   let user;
-
-//   try {
-//     if (role === "student") {
-//       user = await Student.findOne({ email });
-//     } else if (role === "teacher") {
-//       user = await Teacher.findOne({ email });
-//     } else if (role === "admin") {
-//       user = await Admin.findOne({ email });
-//     }
-
-//     if (!user) {
-//       return res.status(404).json({ msg: "Email not found" });
-//     }
-
-//     // Later: send email (nodemailer)
-//     res.json({ msg: `Password reset link sent to ${email}` });
-
-//   } catch (error) {
-//     res.status(500).json({ msg: "Server error" });
-//   }
-// });
-
-// module.exports = router;
+module.exports = router; // ✅ EXPORT THE ROUTER

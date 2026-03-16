@@ -18,6 +18,7 @@ import Assignments from "./pages/Assignments";
 import Timetable from "./pages/Timetable";
 import Grades from "./pages/Grades";
 import PaymentPortal from "./pages/PaymentPortal";
+import CourseDetail from "./pages/CourseDetail"; // 👈 import at top
 
 function App() {
   return (

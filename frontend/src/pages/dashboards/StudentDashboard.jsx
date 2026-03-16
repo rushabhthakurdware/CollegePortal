@@ -13,92 +13,103 @@ import axios from "axios";
 export default function StudentDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [notices, setNotices] = useState([]);
+  const [assignmentCount, setAssignmentCount] = useState(0);
 
   const headerTextRef = useRef();
   const logoutBtnRef = useRef();
   const modalRef = useRef();
   const overlayRef = useRef();
+  const mainRef = useRef();
 
-  const handleLogout = () => {
-    localStorage.removeItem("loggedInUser");
-    window.location.href = "/";
-  };
+  // 1. Consistent LocalStorage Key (Make sure this matches your Login.jsx)
+// Change "user" to "loggedInUser"
+// StudentDashboard.jsx
 
-  const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  const[student,setStudent] =useState(null);
+// 1. Get the data using the CORRECT key
+// Inside StudentDashboard.jsx
 
-  useEffect(()=>{
-    if(!user) return ;
-    axios.get("http://localhost:5000/api/students/"+user.username)
-    .then((res)=>{setStudent(res.data)})
-    .catch((err)=> {console.error(err)});
-  }, [user.username]);
+// Use the key from Login.jsx
+const userData = JSON.parse(localStorage.getItem("loggedInUser")); 
+const [student, setStudent] = useState(null);
 
-  // Animate header text and logout button on mount
+useEffect(() => {
+  // Debug to see if username exists here
+  console.log("Dashboard userData:", userData);
+
+  if (userData && userData.username) {
+    axios
+      .get(`http://localhost:5000/api/students/user/${userData.username}`)
+      .then((res) => {
+        setStudent(res.data);
+      })
+      .catch((err) => {
+        console.error("Fetch Student Error:", err);
+      });
+  } else {
+    console.warn("Username missing! User is not logged in correctly.");
+  }
+}, []);
+
+  // Fetch Notices
   useEffect(() => {
-    gsap.fromTo(
-      headerTextRef.current,
-      { x: -150, opacity: 0 },
-      { x: 0, opacity: 1, duration: 1, ease: "power2.out" }
-    );
-
-    gsap.fromTo(
-      logoutBtnRef.current,
-      { x: 150, opacity: 0 },
-      { x: 0, opacity: 1, duration: 1, ease: "power2.out" }
-    );
+    axios.get("http://localhost:5000/api/notices")
+      .then((res) => setNotices(res.data))
+      .catch((err) => console.error("Error fetching notices:", err));
   }, []);
 
-  // Animate modal on show
+  // Fetch Assignments
   useEffect(() => {
-    if (showModal) {
-      gsap.fromTo(
-        overlayRef.current,
-        { opacity: 0 },
-        { opacity: 0.5, duration: 0.3, ease: "power1.out" }
+    axios.get("http://localhost:5000/api/assignments/all")
+      .then(res => setAssignmentCount(res.data.length))
+      .catch(err => console.log(err));
+  }, []);
+
+  // --- GSAP ANIMATIONS ---
+  // We move these to a single effect that depends on [student]
+  // This ensures the elements exist in the DOM before GSAP tries to find them.
+  useEffect(() => {
+    if (student) {
+      const tl = gsap.timeline();
+
+      tl.fromTo(headerTextRef.current, 
+        { x: -150, opacity: 0 }, 
+        { x: 0, opacity: 1, duration: 1, ease: "power2.out" }
+      )
+      .fromTo(logoutBtnRef.current, 
+        { x: 150, opacity: 0 }, 
+        { x: 0, opacity: 1, duration: 1, ease: "power2.out" }, 
+        "-=0.8" // Start slightly before header finishes
+      )
+      .fromTo(mainRef.current, 
+        { y: 50, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 1, ease: "power2.out" }, 
+        "-=0.5"
       );
-      gsap.fromTo(
-        modalRef.current,
-        { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.5)" }
-      );
-    } else {
-      if (modalRef.current && overlayRef.current) {
-        gsap.to(modalRef.current, {
-          scale: 0.8,
-          opacity: 0,
-          duration: 0.4,
-          ease: "power1.in",
-        });
-        gsap.to(overlayRef.current, {
-          opacity: 0,
-          duration: 0.4,
-          ease: "power1.in",
-        });
-      }
+    }
+  }, [student]); 
+
+  // Modal Animation Logic
+  useEffect(() => {
+    if (showModal && modalRef.current) {
+      gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 0.5, duration: 0.3 });
+      gsap.fromTo(modalRef.current, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.5)" });
     }
   }, [showModal]);
 
-  // Close modal on overlay click
-  const handleOverlayClick = (e) => {
-    if (e.target === overlayRef.current) {
-      setShowModal(false);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Clear the correct key
+    window.location.href = "/";
   };
 
-  const mainRef = useRef();
-
-  useEffect(() => {
-    gsap.fromTo(
-      mainRef.current,
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: "power2.out", delay: 0.3 }
-    );
-  }, []);
-
+  // --- THE GATEKEEPER ---
   if (!student) {
-  return <p className="p-6">Loading student data...</p>;
-}
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-900">
+        <p className="text-xl font-semibold text-white animate-pulse">Loading Student Profile...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -106,37 +117,49 @@ export default function StudentDashboard() {
         onMenuClick={() => setIsSidebarOpen(true)}
         showModal={showModal}
         setShowModal={setShowModal}
-        handleLogout={() => (window.location.href = "/")}
+        handleLogout={handleLogout}
+        // These refs are passed to Header component via props if Header supports it, 
+        // otherwise, ensure they are attached to elements inside this component.
+        headerRef={headerTextRef}
+        logoutRef={logoutBtnRef}
       />
-      
 
-
-      {/* Sidebar Integration */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-
-      {/* Stats cards */}
-      <main className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main ref={mainRef} className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="col-span-1 lg:col-span-1">
-          <AttendanceCard attendance ={student.attendance || "N/A"} delay={1}/>
+          {/* Note: In your model, attendance fields were presentCount/absentCount */}
+          <AttendanceCard 
+            attendance={{ present: student.presentCount, absent: student.absentCount }} 
+            delay={1} 
+          />
         </div>
 
         <div className="col-span-1 lg:col-span-2">
-          <NoticesCard notices={student.notices || []} delay={1}/>
+          <NoticesCard notices={notices} delay={1} />
         </div>
 
         <div className="col-span-2 lg:col-span-2">
-          <MessagesCard messages={student.messages ||[]}/>
+          <MessagesCard messages={student.messages || []} />
         </div>
 
         <div className="col-span-1 lg:col-span-1">
-          <CalendarCard  calender={student.calendar || {}}/>
+          <CalendarCard count={assignmentCount} />
         </div>
 
         <div className="col-span-1 lg:col-span-3 m-5">
-          <ResourcesCard resources={student.resources || [] }/>
+          <ResourcesCard resources={student.resources || []} />
         </div>
       </main>
+
+      {/* Modal Overlay */}
+      {showModal && (
+        <div 
+          ref={overlayRef} 
+          className="fixed inset-0 bg-black z-40" 
+          onClick={() => setShowModal(false)}
+        ></div>
+      )}
     </>
   );
 }

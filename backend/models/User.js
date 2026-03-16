@@ -1,0 +1,19 @@
+const mongoose = require("mongoose");
+
+const UserSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { 
+    type: String, 
+    enum: ["student", "teacher", "admin"], 
+    required: true 
+  },
+  department: String,
+  section: String,
+  // Added from the deleted Student model:
+  presentCount: { type: Number, default: 0 },
+  absentCount: { type: Number, default: 0 }
+});
+
+module.exports = mongoose.model("User", UserSchema);

@@ -31,26 +31,28 @@ export default function Login() {
 
   // Inside Login.jsx
 const handleLogin = async () => {
-  try {
-    const res = await axios.post("http://localhost:5000/api/auth/login", form);
-    
-    // 1. Check if res.data actually has the username
-    console.log("Login Response Data:", res.data); 
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/login", form);
+      
+      console.log("Login Response Data:", res.data); 
 
-    const { role, token, username } = res.data; 
+      // 1. Destructure the ID from the response
+      const { role, token, id } = res.data; 
 
-    // 2. Save the data. 
-    // We will save the whole object so StudentDashboard can find 'username'
-    localStorage.setItem("token", token);
-    localStorage.setItem("loggedInUser", JSON.stringify(res.data));
+      // 2. Save the individual userId string (Fixes the 'null' error)
+      localStorage.setItem("userId", id);
+      
+      // 3. Save the token and full object
+      localStorage.setItem("token", token);
+      localStorage.setItem("loggedInUser", JSON.stringify(res.data));
 
-    if (role === "student") navigate("/student");
-    else if (role === "teacher") navigate("/teacher");
-    else navigate("/admin");
-  } catch (error) {
-    showDialog("error", "Login Failed", "Invalid credentials.");
-  }
-};
+      if (role === "student") navigate("/student");
+      else if (role === "teacher") navigate("/teacher");
+      else navigate("/admin");
+    } catch (error) {
+      showDialog("error", "Login Failed", "Invalid credentials.");
+    }
+  };
 
   const handleSendOtp = async () => {
     if (!form.email || !form.username) {

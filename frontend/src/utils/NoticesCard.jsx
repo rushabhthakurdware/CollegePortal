@@ -34,7 +34,7 @@ export default function NoticesCard() {
   useEffect(() => {
     const fetchNotices = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/notices/all");
+        const response = await axios.get("http://localhost:5000/api/notices");
         setNotices(response.data);
         setLoading(false);
       } catch (error) {

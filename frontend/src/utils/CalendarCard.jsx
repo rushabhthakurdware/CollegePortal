@@ -24,7 +24,7 @@ export default function CalendarCard() {
       try {
         const [assignRes, noticeRes] = await Promise.all([
           axios.get("http://localhost:5000/api/assignments/all"),
-          axios.get("http://localhost:5000/api/notices/all")
+          axios.get("http://localhost:5000/api/notices")
         ]);
         
         setDeadlines(assignRes.data.slice(0, 2)); // Show top 2 on card

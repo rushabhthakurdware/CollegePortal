@@ -24,7 +24,7 @@ export default function MessagesCard() {
   useEffect(() => {
     const fetchMyAlerts = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/messages/user/${user.username}`);
+        const res = await axios.get(`https://college-portal-backend-xi64.onrender.com/api/messages/user/${user.username}`);
         setDbMessages(res.data);
       } catch (err) {
         console.log("Error fetching alerts", err);

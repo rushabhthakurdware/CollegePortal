@@ -32,7 +32,7 @@ export default function Login() {
   // Inside Login.jsx
 const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", form);
+      const res = await axios.post("https://college-portal-backend-xi64.onrender.com/api/auth/login", form);
       
       console.log("Login Response Data:", res.data); 
 
@@ -61,7 +61,7 @@ const handleLogin = async () => {
     }
     try {
       setIsVerifying(true);
-      await axios.post("http://localhost:5000/api/auth/send-otp", { email: form.email });
+      await axios.post("https://college-portal-backend-xi64.onrender.com/api/auth/send-otp", { email: form.email });
       setOtpSent(true);
       showDialog("success", "OTP Sent", "Please check your email for the 6-digit code.");
     } catch (error) {
@@ -73,7 +73,7 @@ const handleLogin = async () => {
 
   const handleRegister = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/verify-and-register", {
+      await axios.post("https://college-portal-backend-xi64.onrender.com/api/auth/verify-and-register", {
         name: form.username,
         username: form.username,
         email: form.email,

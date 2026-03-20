@@ -22,7 +22,7 @@ export default function ResetPassword() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/auth/reset-password",
+        "https://college-portal-backend-xi64.onrender.com/auth/reset-password",
         {
           email: form.email,
           otp: form.otp, // Send OTP to backend

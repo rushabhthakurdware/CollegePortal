@@ -26,7 +26,7 @@ const PaymentPortal = () => {
 
   const confirmPayment = async () => {
     try {
-      const res = await axios.post(`http://localhost:5000/api/payments/${studentId}/pay`, {
+      const res = await axios.post(`https://college-portal-backend-xi64.onrender.com/api/payments/${studentId}/pay`, {
         amount: Number(payAmount)
       });
       setPayment(res.data.payment);
@@ -43,7 +43,7 @@ const PaymentPortal = () => {
   const fetchPayment = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/payments/${studentId}`
+        `https://college-portal-backend-xi64.onrender.com/api/payments/${studentId}`
       );
       setPayment(res.data);
     } catch (err) {
@@ -64,7 +64,7 @@ const PaymentPortal = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/payments/${studentId}/pay`,
+        `https://college-portal-backend-xi64.onrender.com/api/payments/${studentId}/pay`,
         { amount: parseInt(payAmount) }
       );
       setPayment(res.data.payment);

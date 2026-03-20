@@ -9,7 +9,7 @@ import { Trash2, Menu, X, CreditCard, Users, LayoutDashboard, LogOut } from "luc
 const handleAddStudent = async (batch, name) => {
   try {
     // Replace this URL with your actual backend endpoint for adding students
-    await axios.post("http://localhost:5000/api/students/add", {
+    await axios.post("https://college-portal-backend-xi64.onrender.com/api/students/add", {
       name: name,
       batch: batch,
       role: "student" // Ensuring the role is set if your backend requires it
@@ -99,7 +99,7 @@ const AdminDashboard = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/students/all");
+      const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/students/all");
       const grouped = res.data.reduce((acc, student) => {
         const batchName = student.batch || "Unassigned Students";
         if (!acc[batchName]) {
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
     fetchStudents();
     const fetchAllPayments = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/payments/admin/all-transactions");
+        const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/payments/admin/all-transactions");
         setAllTransactions(res.data);
       } catch (err) {
         console.error("Admin Payment Fetch Error:", err);
@@ -138,7 +138,7 @@ const AdminDashboard = () => {
   const handleDeleteStudent = async (studentId) => {
     if (!window.confirm("Are you sure? This will permanently remove the student.")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/students/delete/${studentId}`);
+      await axios.delete(`https://college-portal-backend-xi64.onrender.com/api/students/delete/${studentId}`);
       alert("Student deleted!");
       fetchStudents();
     } catch (err) {

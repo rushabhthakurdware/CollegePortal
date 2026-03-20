@@ -23,8 +23,8 @@ export default function CalendarCard() {
     const fetchAllData = async () => {
       try {
         const [assignRes, noticeRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/assignments/all"),
-          axios.get("http://localhost:5000/api/notices")
+          axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all"),
+          axios.get("https://college-portal-backend-xi64.onrender.com/api/notices")
         ]);
         
         setDeadlines(assignRes.data.slice(0, 2)); // Show top 2 on card

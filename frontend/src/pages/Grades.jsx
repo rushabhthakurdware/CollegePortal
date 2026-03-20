@@ -20,7 +20,7 @@ export default function Grades() {
   useEffect(() => {
     const fetchGrades = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/assignments/all");
+        const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all");
         
         // Filter for assignments that are marked as "Graded"
         // Note: In a production app, you'd also filter by user.username
@@ -43,7 +43,7 @@ export default function Grades() {
     const user = JSON.parse(localStorage.getItem("loggedInUser"));
     
     try {
-      const res = await axios.get("http://localhost:5000/api/assignments/all");
+      const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all");
       
       // 2. Filter: Only show items where recipient matches this student
       const myItems = res.data.filter(a => a.recipient === user.username);

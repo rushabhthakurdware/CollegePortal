@@ -26,7 +26,7 @@ export default function StudentDashboard() {
     
     if (userData && userData.username) {
       axios
-        .get(`http://localhost:5000/api/students/user/${userData.username}`)
+        .get(`https://college-portal-backend-xi64.onrender.com/api/students/user/${userData.username}`)
         .then((res) => setStudent(res.data))
         .catch((err) => console.error("Fetch Student Error:", err));
     }
@@ -34,8 +34,8 @@ export default function StudentDashboard() {
 
   // 2. Fetch Dashboard Content
   useEffect(() => {
-    axios.get("http://localhost:5000/api/notices").then((res) => setNotices(res.data));
-    axios.get("http://localhost:5000/api/assignments/all").then(res => setAssignmentCount(res.data.length));
+    axios.get("https://college-portal-backend-xi64.onrender.com/api/notices").then((res) => setNotices(res.data));
+    axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all").then(res => setAssignmentCount(res.data.length));
   }, []);
 
   // 3. Responsive GSAP Animations

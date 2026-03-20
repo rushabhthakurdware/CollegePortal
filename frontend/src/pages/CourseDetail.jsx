@@ -23,7 +23,7 @@ export default function CourseDetail() {
     const fetchCourseDetails = async () => {
       try {
         // We'll need to create this specific route in the backend
-        const res = await axios.get(`http://localhost:5000/api/courses/${id}`);
+        const res = await axios.get(`https://college-portal-backend-xi64.onrender.com/api/courses/${id}`);
         setCourse(res.data);
         setLoading(false);
       } catch (err) {

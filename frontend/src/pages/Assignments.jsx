@@ -22,7 +22,7 @@ export default function Assignments() {
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/assignments/all");
+        const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all");
         // We initialize a 'status' locally if it doesn't exist in the DB
         const dataWithStatus = res.data.map(asgn => ({
             ...asgn,

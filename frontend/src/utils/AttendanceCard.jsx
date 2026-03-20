@@ -33,7 +33,7 @@ export default function AttendanceCard() {
   }
 
   try {
-    const response = await axios.get(`http://localhost:5000/api/attendance/stats/${studentId}`);
+    const response = await axios.get(`https://college-portal-backend-xi64.onrender.com/api/attendance/stats/${studentId}`);
     const { present , absent , total , percentage  } = response.data;
       // Update state with all necessary fields
       setStats({

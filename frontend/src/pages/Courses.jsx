@@ -20,7 +20,7 @@ export default function Courses() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/courses/all");
+      const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/courses/all");
       // Map through courses to see if the current user is in the 'enrolledStudents' array
       const processedData = res.data.map(c => ({
         ...c,
@@ -37,7 +37,7 @@ export default function Courses() {
   const handleEnrollmentToggle = async (courseId, actionType) => {
     const endpoint = actionType === "enroll" ? "enroll" : "unenroll";
     try {
-      await axios.post(`http://localhost:5000/api/courses/${endpoint}`, {
+      await axios.post(`https://college-portal-backend-xi64.onrender.com/api/courses/${endpoint}`, {
         courseId,
         username: user.username
       });

@@ -8,7 +8,7 @@ export default function ForgotPassword() {
   const handleReset = async () => {
     try {
       // later you’ll connect backend here
-      const res = await axios.post("http://localhost:5000/auth/forgot-password", { email });
+      const res = await axios.post("https://college-portal-backend-xi64.onrender.com/auth/forgot-password", { email });
       alert(res.data.message);
     } catch (err) {
       alert("❌ Failed to send reset link!");

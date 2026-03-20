@@ -13,7 +13,7 @@ export default function ResourcesCard() {
     // Fetch real data
     const fetchRes = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/resources/all");
+        const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/resources/all");
         setDbResources(res.data);
       } catch (err) { console.log(err); }
     };

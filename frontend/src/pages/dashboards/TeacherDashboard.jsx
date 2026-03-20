@@ -70,13 +70,13 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const studentRes = await axios.get("http://localhost:5000/api/students/all");
+        const studentRes = await axios.get("https://college-portal-backend-xi64.onrender.com/api/students/all");
         setStudents(studentRes.data);
-        const noticeRes = await axios.get("http://localhost:5000/api/notices");
+        const noticeRes = await axios.get("https://college-portal-backend-xi64.onrender.com/api/notices");
         setNotices(noticeRes.data);
-        const assignRes = await axios.get("http://localhost:5000/api/assignments/all");
+        const assignRes = await axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all");
         setAssignments(assignRes.data);
-        const resRes = await axios.get("http://localhost:5000/api/resources/all");
+        const resRes = await axios.get("https://college-portal-backend-xi64.onrender.com/api/resources/all");
         setResources(resRes.data);
         
         const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -93,7 +93,7 @@ const TeacherDashboard = () => {
 
   const markAttendance = async (studentId, status) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/attendance/update", { studentId, status });
+      const res = await axios.post("https://college-portal-backend-xi64.onrender.com/api/attendance/update", { studentId, status });
       setStudents(prev => prev.map(s => s._id === studentId ? { ...s, presentCount: res.data.present, absentCount: res.data.absent } : s));
       alert(`Marked ${status}`);
     } catch (e) { alert("Attendance update failed"); }
@@ -102,7 +102,7 @@ const TeacherDashboard = () => {
   const handleAddNotice = async () => {
     if (!newNotice.title || !newNotice.content) return alert("Fill all fields");
     try {
-      const res = await axios.post("http://localhost:5000/api/notices/add", { ...newNotice, type: "General" });
+      const res = await axios.post("https://college-portal-backend-xi64.onrender.com/api/notices/add", { ...newNotice, type: "General" });
       setNotices([res.data, ...notices]);
       setNewNotice({ title: "", content: "" });
     } catch (e) { alert("Failed to publish"); }
@@ -111,7 +111,7 @@ const TeacherDashboard = () => {
   const handleDeleteNotice = async (id) => {
     if (!window.confirm("Delete?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/notices/${id}`);
+      await axios.delete(`https://college-portal-backend-xi64.onrender.com/api/notices/${id}`);
       setNotices(notices.filter(n => n._id !== id));
     } catch (e) { alert("Delete failed"); }
   };
@@ -119,7 +119,7 @@ const TeacherDashboard = () => {
   const handleAddAssignment = async () => {
     if (!newAssignment.title || !selectedStudent) return alert("Select student and title");
     try {
-      const res = await axios.post("http://localhost:5000/api/assignments/add", { ...newAssignment, recipient: selectedStudent, status: "Pending" });
+      const res = await axios.post("https://college-portal-backend-xi64.onrender.com/api/assignments/add", { ...newAssignment, recipient: selectedStudent, status: "Pending" });
       setAssignments([res.data, ...assignments]);
       setNewAssignment({ title: "", subject: "", dueDate: "" });
       alert("Assigned!");
@@ -128,8 +128,8 @@ const TeacherDashboard = () => {
 
   const submitGrade = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/assignments/grade/${id}`, gradingData);
-      const res = await axios.get("http://localhost:5000/api/assignments/all");
+      await axios.put(`https://college-portal-backend-xi64.onrender.com/api/assignments/grade/${id}`, gradingData);
+      const res = await axios.get("https://college-portal-backend-xi64.onrender.com/api/assignments/all");
       setAssignments(res.data);
       alert("Graded!");
     } catch (e) { alert("Grading failed"); }
@@ -137,7 +137,7 @@ const TeacherDashboard = () => {
 
   const handleAddResource = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/resources/add", { ...newResource, instructor: teacherData.name });
+      const res = await axios.post("https://college-portal-backend-xi64.onrender.com/api/resources/add", { ...newResource, instructor: teacherData.name });
       setResources([res.data, ...resources]);
       setNewResource({ title: "", subject: "", link: "" });
     } catch (e) { alert("Resource failed"); }
@@ -146,7 +146,7 @@ const TeacherDashboard = () => {
   const handleUpdateProfile = async () => {
     const id = teacherData.id || localStorage.getItem("userId");
     try {
-      const res = await axios.put(`http://localhost:5000/api/teacher/update/${id}`, { department: deptInput });
+      const res = await axios.put(`https://college-portal-backend-xi64.onrender.com/api/teacher/update/${id}`, { department: deptInput });
       const updated = { ...teacherData, department: res.data.department };
       setTeacherData(updated);
       localStorage.setItem("loggedInUser", JSON.stringify(updated));
@@ -156,7 +156,7 @@ const TeacherDashboard = () => {
 
   const handleAddCourse = async () => {
     try {
-      await axios.post("http://localhost:5000/api/courses/add", { ...newCourse, instructor: teacherData.name });
+      await axios.post("https://college-portal-backend-xi64.onrender.com/api/courses/add", { ...newCourse, instructor: teacherData.name });
       alert("Course Published");
       setNewCourse({ title: "", code: "", duration: "4 Months", description: "", syllabus: "" });
     } catch (e) { alert("Course creation failed"); }
@@ -164,7 +164,7 @@ const TeacherDashboard = () => {
 
   const sendNotification = async () => {
     try {
-      await axios.post("http://localhost:5000/api/messages/send", { sender: teacherData.name, recipient: selectedStudent, text: alertText });
+      await axios.post("https://college-portal-backend-xi64.onrender.com/api/messages/send", { sender: teacherData.name, recipient: selectedStudent, text: alertText });
       alert("Alert Sent");
       setAlertText("");
     } catch (e) { alert("Message failed"); }

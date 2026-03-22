@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import "./App.css";
 import Footer from "./components/Footer";
-
+import AIAssistant from "./pages/AIAssistant";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/dashboards/StudentDashboard";
 import TeacherDashboard from "./pages/dashboards/TeacherDashboard";
@@ -67,6 +67,7 @@ function App() {
           <Route path="/grades" element={<Grades />} />
           <Route path="/payment" element={<PaymentPortal />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/ai-assistant" element={<AIAssistant />} />
         </Routes>
       </div>
 

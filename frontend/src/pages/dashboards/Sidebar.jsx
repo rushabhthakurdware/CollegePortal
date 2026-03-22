@@ -1,6 +1,5 @@
-
 // Sidebar.jsx
-import React, { useEffect, useRef , useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import LogoutButton from "../../components/LogoutButton";
 import { Link } from "react-router-dom";
@@ -18,10 +17,10 @@ export default function Sidebar({ isOpen, onClose }) {
     { name: "📅 Timetable", path: "/timetable" },
     { name: "📊 Grades", path: "/grades" },
     { name: "💳 Payment Portal", path: "/payment" },
+    { name: "✨ AI Assistant", path: "/ai-assistant" },
   ];
 
   const [username, setUsername] = useState("");
-
 
   useEffect(() => {
     // Create timeline only once
@@ -31,14 +30,14 @@ export default function Sidebar({ isOpen, onClose }) {
     tl.current.fromTo(
       overlayRef.current,
       { opacity: 0, pointerEvents: "none" },
-      { opacity: 1, pointerEvents: "auto", duration: 0.3, ease: "power1.out" }
+      { opacity: 1, pointerEvents: "auto", duration: 0.3, ease: "power1.out" },
     );
 
     // Sidebar slide in
     tl.current.fromTo(
       sidebarRef.current,
       { x: "100%" },
-      { x: "0%", duration: 0.3, delay: 0, ease: "power1.in" }
+      { x: "0%", duration: 0.3, delay: 0, ease: "power1.in" },
     );
 
     // Stagger links in
@@ -52,7 +51,7 @@ export default function Sidebar({ isOpen, onClose }) {
         stagger: 0.1,
         ease: "power3.out",
       },
-      "-=0.2"
+      "-=0.2",
     );
   }, []);
 
@@ -65,12 +64,11 @@ export default function Sidebar({ isOpen, onClose }) {
   }, [isOpen]);
 
   useEffect(() => {
-  const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  if (user?.username) {
-    setUsername(user.username);
-  }
-}, []);
-
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (user?.username) {
+      setUsername(user.username);
+    }
+  }, []);
 
   return (
     <>
@@ -89,11 +87,8 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-indigo-500">
-          <h2 className="text-lg font-bold">Welcome  {username}</h2>
-          <button
-            className="text-2xl hover:text-red-400"
-            onClick={onClose}
-          >
+          <h2 className="text-lg font-bold">Welcome {username}</h2>
+          <button className="text-2xl hover:text-red-400" onClick={onClose}>
             <i className="ri-close-line text-3xl"></i>
           </button>
         </div>
@@ -114,7 +109,11 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-4 w-full px-4">
+        {/* Footer */}
+        <div
+          ref={(el) => (linksRef.current[navItems.length] = el)} // This adds the logout button to the stagger sequence
+          className="absolute bottom-4 w-full px-4 opacity-0"
+        >
           <LogoutButton />
         </div>
       </div>

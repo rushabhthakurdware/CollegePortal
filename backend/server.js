@@ -32,7 +32,11 @@ const assignmentRoutes = require("./routes/assignments");
 const payment = require("./models/Payment");
 const courseRoutes = require("./routes/courses"); // 1. Import
 
+const aiRoutes = require("./routes/aiRoutes");
+app.use("/api/ai", aiRoutes);
+
 app.use("/api/auth", authRoutes);
+
 app.use("/api/payments", paymentRoutes);
 
 app.use("/api/students", studentRoutes);

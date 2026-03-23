@@ -13,6 +13,9 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "College Portal API is running 🎓" });
+});
 // Import routes
 
 // server.js - Change this line:

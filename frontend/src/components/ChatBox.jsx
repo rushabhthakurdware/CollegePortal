@@ -52,7 +52,7 @@ const ChatBot = ({ userProfile }) => {
     setInput("");
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/ai/chat", {
+      const { data } = await axios.post("https://college-portal-backend-xi64.onrender.com/api/ai/chat", {
         message: input,
         studentInfo: { 
           caste: userProfile?.caste || 'Open', 

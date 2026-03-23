@@ -35,7 +35,7 @@ export default function AIAssistant() {
 
     try {
       // Point this to your Render URL once hosted
-      const response = await axios.post("http://localhost:5000/api/ai/chat", {
+      const response = await axios.post("https://college-portal-backend-xi64.onrender.com/api/ai/chat", {
         message: input,
         studentInfo: {
           caste: user?.caste || "Open",
